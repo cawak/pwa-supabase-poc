@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supabase Authentication with Google</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const { createClient } = supabase;
+  </script>
+</head>
+<body>
+  <h1>Supabase Authentication with Google</h1>
+  <button id="loginButton">Login</button>
+  <button id="logoutButton" style="display: none;">Logout</button>
+  <p id="messageContainer"></p>
+
+  <script>
+    window.onload = function() {
+      // Replace with your Supabase project URL and anon key
+      const supabaseUrl = 'https://xnkjacjrsoakdqwkdbvb.supabase.co';
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhua2phY2pyc29ha2Rxd2tkYnZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTEzODk4MjksImV4cCI6MjAyNjk2NTgyOX0.-ECoWQXq-VEBMHCIWmIFlteKUzBwTmdWtdOAOIYcf3g';
+
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+      const loginButton = document.getElementById('loginButton');
+      const logoutButton = document.getElementById('logoutButton');
+      const messageContainer = document.getElementById('messageContainer');
+
+      loginButton.addEventListener('click', async () => {
+        try {
+          const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+          });
+          if (error) throw error;
+        } catch (error) {
+          console.error('Error:', error.message);
+        }
+      });
+
+      logoutButton.addEventListener('click', async () => {
+        try {
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+        } catch (error) {
+          console.error('Error:', error.message);
+        }
+      });
+
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN') {
+          loginButton.style.display = 'none';
+          logoutButton.style.display = 'inline-block';
+          messageContainer.textContent = `You are logged in as ${session.user.email}`;
+        } else {
+          loginButton.style.display = 'inline-block';
+          logoutButton.style.display = 'none';
+          messageContainer.textContent = 'You are not logged in';
+        }
+      });
+    };
+  </script>
+</body>
+</html>
